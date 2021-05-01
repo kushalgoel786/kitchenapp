@@ -13,7 +13,7 @@ class ProductDetails extends StatefulWidget {
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
-  bool isLoading;
+  bool isLoading = false;
   var data;
   @override
   void initState() {
