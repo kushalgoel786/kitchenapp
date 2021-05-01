@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:kitchenapp/firstpage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -15,9 +16,14 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   bool isLoading = false;
   var data;
+  var radioItem = 0;
+  List dropdown = List();
+  var selectedYear;
+
   @override
   void initState() {
     fetchData();
+
     super.initState();
   }
 
@@ -32,6 +38,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     print(data[0]);
     setState(() {
       isLoading = false;
+      dropdown = data;
     });
   }
 
@@ -39,7 +46,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: MyTheme.colorOrange,
         title: Text(
           "Products Details",
           style: GoogleFonts.montserrat(
@@ -112,8 +119,24 @@ class _ProductDetailsState extends State<ProductDetails> {
           mode: CupertinoDatePickerMode.date,
         ),
       );
+      // return Container(
+      //   child: DropdownButton(
+      //     value: selectedYear,
+      //     hint: Text('Year of purchase'),
+      //     items: data.map((list) {
+      //       return DropdownMenuItem(child: Text(list["maxLength"]),
+      //       value: Text(list["maxLength"]),
+      //       );
+      //     },).toList(),
+      //     onChanged: (value) {
+      //       setState(() {
+      //         selectedYear = value;
+      //       });
+      //     },
+
+      //   )
+      // );
     } else if (data["type"] == "radio") {
-      var radioItem = 0;
       var result = data["answer"].split(",");
       return Column(children: <Widget>[
         RadioListTile(
@@ -142,4 +165,6 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 }
 
-
+class MyTheme {
+  static Color colorOrange = HexColor("#FDA087");
+}
