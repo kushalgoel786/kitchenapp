@@ -5,28 +5,24 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kitchenapp/firstpage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-
 class ProductDetails extends StatefulWidget {
   final int productId;
   ProductDetails({this.productId});
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
-
 class _ProductDetailsState extends State<ProductDetails> {
   bool isLoading = false;
   var data;
   var radioItem = 0;
-  List dropdown = List();
+  final dropdown = <int>[];
   var selectedYear;
-
+  var _value;
   @override
   void initState() {
     fetchData();
-
     super.initState();
   }
-
   void fetchData() async {
     setState(() {
       isLoading = true;
@@ -38,10 +34,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     print(data[0]);
     setState(() {
       isLoading = false;
-      dropdown = data;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +49,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Card(child: Center(child: CircularProgressIndicator()))
           : ListView.builder(
               itemBuilder: (ctx, i) {
                 return ListTile(
@@ -71,7 +65,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     SizedBox(height: 40);
     RaisedButton(child: Text('SUBMIT'), onPressed: () {});
   }
-
   Widget adaptiveWidget(var data) {
     if (data["type"] == "text") {
       var nameController = TextEditingController();
@@ -109,62 +102,67 @@ class _ProductDetailsState extends State<ProductDetails> {
         ),
       );
     } else if (data["type"] == "year") {
-      return Container(
-        height: 200,
-        child: CupertinoDatePicker(
-          initialDateTime: DateTime.now(),
-          onDateTimeChanged: (newTime) {},
-          maximumYear: int.tryParse(data["maxLength"]),
-          minimumYear: int.tryParse(data["minLength"]),
-          mode: CupertinoDatePickerMode.date,
-        ),
-      );
       // return Container(
-      //   child: DropdownButton(
-      //     value: selectedYear,
-      //     hint: Text('Year of purchase'),
-      //     items: data.map((list) {
-      //       return DropdownMenuItem(child: Text(list["maxLength"]),
-      //       value: Text(list["maxLength"]),
-      //       );
-      //     },).toList(),
-      //     onChanged: (value) {
-      //       setState(() {
-      //         selectedYear = value;
-      //       });
-      //     },
-
-      //   )
+      //   height: 200,
+      //   child: CupertinoDatePicker(
+      //     initialDateTime: DateTime.now(),
+      //     onDateTimeChanged: (newTime) {},
+      //     maximumYear: int.tryParse(data["maxLength"]),
+      //     minimumYear: int.tryParse(data["minLength"]),
+      //     mode: CupertinoDatePickerMode.date,
+      //   ),
       // );
+      //
+      return Container(
+          child: DropdownButton<int>(
+        isExpanded: true,
+        value: _value,
+        onChanged: (value) {
+          setState(() {
+            _value = value;
+            print(value);
+          });
+        },
+        items: [
+          for (var i = int.tryParse(data['maxLength']);
+              i >= int.tryParse(data['minLength']);
+              i--)
+            DropdownMenuItem(value: i, child: Text('$i')),
+        ],
+      ));
     } else if (data["type"] == "radio") {
-      var result = data["answer"].split(",");
-      return Column(children: <Widget>[
-        RadioListTile(
-          groupValue: radioItem,
-          title: Text(result[0]),
-          value: 0,
-          activeColor: Colors.black,
-          onChanged: (value) {
-            setState(() {
-              radioItem = value;
-            });
-          },
-        ),
-        RadioListTile(
-            groupValue: radioItem,
-            title: Text(result[1]),
-            value: 1,
-            activeColor: Colors.black,
-            onChanged: (value) {
-              setState(() {
-                radioItem = value;
-              });
-            })
-      ]);
+      List<String> separated = data["answer"].split(",");
+      var answer = separated[1];
+      return Container(
+          height: 120,
+          child: StatefulBuilder(
+            builder: (context, _setState) {
+              return Column(children: [
+                RadioListTile(
+                    title: Text(separated[0]),
+                    value: separated[0],
+                    groupValue: answer,
+                    onChanged: (value) => _setState(() {
+                          answer = value;
+                        })),
+                RadioListTile(
+                    groupValue: answer,
+                    title: Text(separated[1]),
+                    value: separated[1],
+                    onChanged: (value) => _setState(() {
+                          answer = value;
+                        })),
+              ]);
+            },
+          ));
     }
   }
 }
-
 class MyTheme {
   static Color colorOrange = HexColor("#FDA087");
 }
+
+
+
+
+
