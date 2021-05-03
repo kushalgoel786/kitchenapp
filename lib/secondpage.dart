@@ -160,6 +160,8 @@ class _ProductDetailsState extends State<ProductDetails> {
 }
 class MyTheme {
   static Color colorOrange = HexColor("#FDA087");
+    static Color colorGreen = HexColor("#2B5D4E");
+
 }
 
 

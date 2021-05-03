@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:kitchenapp/secondpage.dart';
 
+import 'config/size_config.dart';
+
 class KitchenProducts extends StatefulWidget {
   @override
   _KitchenProductsState createState() => _KitchenProductsState();
@@ -29,42 +31,96 @@ class _KitchenProductsState extends State<KitchenProducts> {
     print(data[0]);
     setState(() {
       isLoading = false;
+      data.removeAt(12);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Kitchen Products",
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text(
+            "Kitchen Products",
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemBuilder: (ctx, i) {
-                return ListTile(
-                  leading: Image.network(
-                    data[i]['imageUrl'],
-                    height: 50,
-                    width: 50,
-                  ),
-                  title: Text(data[i]['name'], style: GoogleFonts.montserrat()),
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => ProductDetails(
-                                productId: int.tryParse(data[i]["productId"]),
-                              ))),
-                );
-              },
-              itemCount: data.length - 3,
-            ),
-    );
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+            child: Center(
+                child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: GridView.builder(
+                            physics: new NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: data == null ? 0 : data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return GridTile(
+
+                                  /// wrapping whole thing in InkWell to make it clickAble
+                                  child: InkWell(
+                                onTap: () {
+                                  /// Navigating to screen 2 onTap
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return ProductDetails(
+                                      productId: int.tryParse(
+                                          data[index]["productId"]),
+                                    );
+                                  }));
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal:
+                                          getProportionateScreenWidth(5)),
+                                  height: getProportionateScreenHeight(25),
+                                  width: getProportionateScreenWidth(25),
+                                  child: Column(
+                                    children: [
+                                      // FlutterLogo(),
+                                      Image.network(
+                                          data[index]["imageUrl"].toString(),
+                                          height: 110,
+                                          width: 110,
+                                          fit: BoxFit.cover),
+
+                                      Text(
+                                        data[index]['name'].toString(),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ));
+                            },
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 5.0,
+                              crossAxisSpacing: 5.0,
+                            ),
+                          ),
+                        ),
+                      ])),
+            )
+          ],
+        ))));
   }
 }
